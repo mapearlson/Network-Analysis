@@ -1,0 +1,31 @@
+###This is just a look at the ties between different countries using data from the 1988 I believe.  
+#All of the data can be found on http://moreno.ss.uci.edu/data.html.  The data is under the heading 
+#"SMITH,WHITE--INTERNATIONAL TRADE."  I use different ties to measure centrality such as degree, betweenness, closeness,
+#eigenvector, and Bonacich.  
+
+install.packages("igraph")
+library(igraph)
+ dat=read.csv(file.choose("manufactured_goods.csv"), header=TRUE)
+ m=as.matrix(dat)
+ net=graph.adjacency(m,mode="directed") # the only difference between this and the weighted
+ el <- get.edgelist(net)
+ traits=read.csv(file.choose("trade_attributes.csv"), header=TRUE)
+ g <- graph.empty()
+ g <- add.vertices(g, nrow(traits), ID=traits[,1], Pop_Growth=traits[,2], GNP=traits[,3], Schools=traits[,4], Energy=traits[,5])
+ d=read.csv(file.choose("D.csv"),header=TRUE,row.names=1,check.names=FALSE)
+ dm=as.matrix(d) # coerces the data set as a matrix
+ dmg=graph.adjacency(dm,mode="directed",weighted=NULL)
+V(dmg)$Pop_Growth=traits$Pop_Growth[match(V(dmg)$name,traits$ID)]
+V(dmg)$GNP=traits$GNP[match(V(dmg)$name,traits$ID)]
+V(dmg)$Schools=traits$Schools[match(V(dmg)$name,traits$ID)]
+V(dmg)$Energy=traits$Energy[match(V(dmg)$name,traits$ID)]
+con <- constraint(dmg)
+close <- closeness(dmg, mode = c("all"))
+eigen <- evcent(dmg)
+bon <- bonpow(dmg)
+d.in = degree(dmg, mode = c("in"), loops = TRUE, normalized = FALSE)
+d.out = degree(dmg, mode = c("out"), loops = TRUE, normalized = FALSE)
+degree = degree(dmg, loops = T, normalized = F)
+btwn = betweenness(dmg, directed = F)
+density=graph.density(dmg)
+
